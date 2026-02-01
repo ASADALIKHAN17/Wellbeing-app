@@ -30,6 +30,8 @@ async def upload_report(
         
     # Extract Text
     text = await extract_text_from_pdf(content)
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="Could not extract text from the uploaded PDF. Please ensure it is a valid text-based PDF report.")
     
     # Parse basic params locally
     parsed_data_dict = await parse_health_parameters(text)

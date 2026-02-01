@@ -1,3 +1,4 @@
+import os
 import google.generativeai as genai
 import json
 from app.core.config import get_settings
@@ -7,9 +8,10 @@ settings = get_settings()
 
 # Configure Gemini
 genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel("models/text-bison-001")
 
-async def analyze_health_report(extracted_text: str, extracted_data: dict) -> GeminiAnalysis:
+
+async def analyze_health_report(extracted_text: str, extracted_data: dict) -> dict:
     """
     Analyzes health report text using Gemini API and returns a structured JSON response.
     """
@@ -47,30 +49,26 @@ async def analyze_health_report(extracted_text: str, extracted_data: dict) -> Ge
         "doctor_consultation": true/false
     }}
     
-    Do not include markdown formatting (like ```json), just the raw JSON string.
+    IMPORTANT: Return ONLY the JSON string. Do not use markdown formatting like ```json or ```.
     """
     
-    try:
-        response = model.generate_content(prompt)
-        response_text = response.text
+    response = model.generate_content(prompt)
+    response_text = response.text
+    
+    # robustly extract JSON from the response
+    import re
+    # Look for the first opening brace and the last closing brace
+    json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+    
+    if json_match:
+        json_str = json_match.group(0)
+    else:
+        # If no braces found, use the whole text (likely will fail JSON load if not valid)
+        json_str = response_text
         
-        # Clean up if markdown code blocks are present
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-            
-        data = json.loads(response_text)
-        return GeminiAnalysis(**data)
-    except Exception as e:
-        print(f"Gemini Analysis Error: {e}")
-        # Return a fallback/empty analysis in case of failure to avoid crashing
-        return GeminiAnalysis(
-            summary="Could not analyze report due to an error.",
-            abnormal_parameters=[],
-            dietary_suggestions=[],
-            foods_to_include=[],
-            foods_to_avoid=[],
-            lifestyle_tips=[],
-            doctor_consultation=False
-        )
+    data = json.loads(json_str)
+    
+    # Return dict as requested, Pydantic upstream should handle it if needed, or if modifying signature
+    return data
+
+print("Gemini key loaded:", bool(os.getenv("GEMINI_API_KEY")))

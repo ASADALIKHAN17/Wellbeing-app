@@ -1,5 +1,8 @@
 import fitz  # PyMuPDF
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def extract_text_from_pdf(file_content: bytes) -> str:
     """
@@ -12,7 +15,7 @@ async def extract_text_from_pdf(file_content: bytes) -> str:
             text += page.get_text()
         return text
     except Exception as e:
-        print(f"Error extracting text: {e}")
+        logger.error(f"Error extracting text from PDF: {e}")
         return ""
 
 async def parse_health_parameters(text: str) -> dict:

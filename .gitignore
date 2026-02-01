@@ -15,5 +15,5 @@ build/
 # IDEs
 .vscode/
 .idea/
-
+backend/uploads/
 

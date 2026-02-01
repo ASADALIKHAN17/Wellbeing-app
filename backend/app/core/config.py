@@ -1,5 +1,11 @@
+from dotenv import load_dotenv
+import os
+
+
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+
+load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Health Wellbeing App"

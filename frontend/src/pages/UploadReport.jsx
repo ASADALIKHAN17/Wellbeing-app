@@ -45,7 +45,8 @@ const UploadReport = () => {
             navigate(`/reports/${response.data._id}`);
         } catch (err) {
             console.error(err);
-            setError('Failed to analyze report. Please try again.');
+            const errorMessage = err.response?.data?.detail || 'Failed to analyze report. Please try again.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
