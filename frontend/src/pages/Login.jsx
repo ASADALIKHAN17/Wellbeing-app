@@ -30,14 +30,16 @@ const Login = () => {
             <div className="max-w-md w-full mx-6 relative">
                 {/* Logo */}
                 <div className="flex justify-center mb-10">
-                    <div className="flex items-center gap-2.5">
-                        <div className="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-200">
-                            <Activity className="h-6 w-6" />
-                        </div>
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group">
+                        <img 
+                            src="/logo.svg" 
+                            alt="HealthWell Logo" 
+                            className="h-14 w-14 group-hover:scale-105 transition-transform"
+                        />
                         <span className="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">
                             HealthWell
                         </span>
-                    </div>
+                    </Link>
                 </div>
 
                 {/* Card */}

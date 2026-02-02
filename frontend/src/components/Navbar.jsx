@@ -19,9 +19,11 @@ const Navbar = () => {
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                     <Link to="/dashboard" className="flex items-center gap-2.5 group">
-                        <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
-                            <Activity className="h-5 w-5" />
-                        </div>
+                        <img 
+                            src="/logo.svg" 
+                            alt="HealthWell Logo" 
+                            className="h-12 w-12 group-hover:scale-105 transition-transform"
+                        />
                         <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">
                             HealthWell
                         </span>

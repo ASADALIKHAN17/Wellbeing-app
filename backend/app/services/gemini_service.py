@@ -24,17 +24,36 @@ async def analyze_health_report(extracted_text: str = None, pdf_bytes: bytes = N
     
     TASKS:
     1. EXTRACT DATA: Find all health parameters (like Hemoglobin, Sugar, Cholesterol, etc.). 
-       For each parameter, extract:
+       For each parameter, you MUST extract:
        - The actual numerical value (as a floating point number).
        - The unit of measurement.
-       - The reference range provided (if any).
-    2. ANALYZE: First, look for the 'Reference Range' or 'Normal Range' provided within the report document itself. Use those values for analysis. If the report doesn't provide a range, use standard Indian medical ranges:
-       - Hemoglobin: 13-17 g/dL (men), 12-15 g/dL (women)
-       - Blood Sugar (Fasting): 70-100 mg/dL
-       - Total Cholesterol: < 200 mg/dL
-       - Vitamin D: 30-100 ng/mL
-       - (Fallback: For any other parameter, use your internal medical knowledge of standard healthy ranges).
-    3. RECOMMEND: Provide dietary and lifestyle advice based on the results.
+       - The reference range (MANDATORY - see instructions below).
+       
+    2. REFERENCE RANGE EXTRACTION (CRITICAL):
+       For EVERY parameter you extract, you MUST provide a reference_range field.
+       - FIRST: Look for the 'Reference Range', 'Normal Range', or 'Biological Reference Interval' in the report document itself.
+       - IF NOT FOUND in document: Use standard Indian medical reference ranges:
+         * Hemoglobin: "13-17" for men, "12-15" for women (use "12-17" if gender unknown)
+         * Blood Sugar (Fasting): "70-100"
+         * Blood Sugar (Random): "70-140"
+         * HbA1c: "4-5.6"
+         * Total Cholesterol: "125-200"
+         * LDL Cholesterol: "0-100"
+         * HDL Cholesterol: "40-60"
+         * Triglycerides: "0-150"
+         * Vitamin D: "30-100"
+         * Vitamin B12: "200-900"
+         * TSH: "0.5-5"
+         * Creatinine: "0.6-1.2"
+         * Uric Acid: "3.5-7.2"
+         * SGPT/ALT: "0-40"
+         * SGOT/AST: "0-40"
+       - For any other parameter not listed above, use your medical knowledge to provide appropriate standard ranges.
+       - IMPORTANT: The reference_range should be a string in format "min-max" (e.g., "13-17"), without units.
+       
+    3. ANALYZE: Compare values against the reference ranges and identify abnormalities.
+    
+    4. RECOMMEND: Provide dietary and lifestyle advice based on the results.
 
     OUTPUT FORMAT:
     You MUST return a JSON object with this EXACT structure:

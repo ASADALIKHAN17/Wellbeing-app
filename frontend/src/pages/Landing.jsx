@@ -18,14 +18,16 @@ const Landing = () => {
             {/* Navigation */}
             <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                        <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-200">
-                            <Activity className="h-5 w-5" />
-                        </div>
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group">
+                        <img 
+                            src="/logo.svg" 
+                            alt="HealthWell Logo" 
+                            className="h-12 w-12 group-hover:scale-105 transition-transform"
+                        />
                         <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">
                             HealthWell
                         </span>
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-8">
                         {user ? (
                             <Link to="/dashboard" className="bg-indigo-600 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 hover:shadow-lg hover:-translate-y-0.5">
@@ -43,9 +45,9 @@ const Landing = () => {
                 </div>
             </nav>
 
-            <main className="pt-32">
+            <main className="pt-20">
                 {/* Hero Section */}
-                <section className="px-6 py-24 max-w-7xl mx-auto relative overflow-hidden">
+                <section className="px-6 py-16 max-w-7xl mx-auto relative overflow-hidden">
                     {/* Background Gradients */}
                     <div className="absolute top-0 -left-4 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
                     <div className="absolute top-0 -right-4 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -79,9 +81,9 @@ const Landing = () => {
                 </section>
 
                 {/* Feature Grid */}
-                <section className="bg-white py-40 px-6 border-y border-slate-100">
+                <section className="bg-white py-20 px-6 border-y border-slate-100">
                     <div className="max-w-7xl mx-auto">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-24">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
                             <div className="max-w-xl">
                                 <h2 className="text-4xl font-bold tracking-tight mb-6 text-slate-900">Powerful features, <br />unmatched simplicity.</h2>
                                 <p className="text-slate-500 text-lg font-medium leading-relaxed">We handle the complexity of medical data so you can focus on what matters most: your well-being.</p>
@@ -132,7 +134,7 @@ const Landing = () => {
                 </section>
 
                 {/* Secure Section */}
-                <section className="py-40 px-6 max-w-7xl mx-auto">
+                <section className="py-20 px-6 max-w-7xl mx-auto">
                     <div className="bg-slate-900 rounded-[4rem] p-12 md:p-24 text-white overflow-hidden relative shadow-2xl">
                         <div className="relative z-10 max-w-2xl">
                             <div className="bg-indigo-500/20 w-14 h-14 rounded-2xl flex items-center justify-center mb-10 border border-indigo-500/30">
@@ -168,13 +170,17 @@ const Landing = () => {
                 </section>
             </main>
 
-            <footer className="bg-white border-t border-slate-100 py-32 px-6">
+            <footer className="bg-white border-t border-slate-100 py-16 px-6">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-20">
                     <div className="max-w-sm">
-                        <div className="flex items-center gap-2.5 mb-8">
-                            <Activity className="h-6 w-6 text-indigo-600" />
+                        <Link to="/dashboard" className="flex items-center gap-2.5 mb-8 group w-fit">
+                            <img 
+                                src="/logo.svg" 
+                                alt="HealthWell Logo" 
+                                className="h-10 w-10 group-hover:scale-105 transition-transform"
+                            />
                             <span className="font-bold text-2xl tracking-tight text-slate-900">HealthWell</span>
-                        </div>
+                        </Link>
                         <p className="text-slate-500 font-medium leading-relaxed">
                             Empowering individuals with AI-driven health insights to make better decisions for a longer, healthier life.
                         </p>

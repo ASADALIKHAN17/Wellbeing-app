@@ -23,20 +23,40 @@ async def get_health_trends(
     
     trends = {}
     
+    # 1. Build a map of normalized_key -> best_display_name
+    # Iterate in reverse order (newest first) to prefer newer names for display
+    param_name_map = {}
+    for report in reversed(reports):
+        data = report.get("extracted_data", {})
+        for param in data:
+            # Normalize: Remove parentheses, lowercase, strip, collapse spaces
+            # "Hemoglobin (Hb)" -> "Hemoglobin" -> "hemoglobin"
+            clean_param = re.sub(r'\(.*?\)', '', param)
+            norm_key = " ".join(clean_param.strip().lower().split())
+            
+            if norm_key not in param_name_map:
+                param_name_map[norm_key] = param.strip()
+    
     for report in reports:
         date = report.get("upload_date").isoformat()
         data = report.get("extracted_data", {})
         
         for param, val in data.items():
-            # Standardize parameter name (lowercase and strip)
-            param_key = param.strip()
+            # Get the canonical display name for this parameter
+            clean_param = re.sub(r'\(.*?\)', '', param)
+            norm_key = " ".join(clean_param.strip().lower().split())
+            
+            # Use the canonical display name
+            param_key = param_name_map.get(norm_key, param.strip())
             
             num_val = None
             unit = ""
+            ref_range = None
             
             if isinstance(val, dict):
                 num_val = val.get("value")
                 unit = val.get("unit", "")
+                ref_range = val.get("reference_range", None)
             elif isinstance(val, str):
                 # Legacy support: extract number from string "14.5 g/dL"
                 match = re.search(r"(\d+\.?\d*)", val)
@@ -48,11 +68,13 @@ async def get_health_trends(
                 if param_key not in trends:
                     trends[param_key] = {
                         "unit": unit,
+                        "reference_range": ref_range,
                         "data": []
                     }
                 trends[param_key]["data"].append({
                     "date": date,
-                    "value": num_val
+                    "value": num_val,
+                    "referenceRange": ref_range
                 })
                 
     # Sort data points by date just in case

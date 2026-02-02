@@ -1,0 +1,35 @@
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override MONGODB_URI to point to the docker service name usually, 
+      # but if the user uses localhost in their .env, we can override it here.
+      - MONGODB_URI=mongodb://mongodb:27017
+    volumes:
+      # Mount source code for easier debugging if needed, 
+      # though usually not done in prod. For "dockerize my project" usually implies a runnable setup.
+      # Let's keep it simple for now, no volumes for code.
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:

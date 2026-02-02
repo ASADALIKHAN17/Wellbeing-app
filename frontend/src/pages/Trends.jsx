@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { 
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceArea 
 } from 'recharts';
 import { 
     Activity, ArrowUpRight, ArrowDownRight, Minus, Loader2, Info, TrendingUp, Calendar, Filter
@@ -191,6 +191,69 @@ const Trends = () => {
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    
+                                    {/* Reference Range Background - Light Green */}
+                                    {(() => {
+                                        // Standard fallback ranges for common parameters
+                                        const standardRanges = {
+                                            'Hemoglobin': '12-17',
+                                            'Blood Sugar': '70-100',
+                                            'Fasting Blood Sugar': '70-100',
+                                            'Random Blood Sugar': '70-140',
+                                            'HbA1c': '4-5.6',
+                                            'Total Cholesterol': '125-200',
+                                            'LDL Cholesterol': '0-100',
+                                            'HDL Cholesterol': '40-60',
+                                            'Triglycerides': '0-150',
+                                            'Vitamin D': '30-100',
+                                            'Vitamin B12': '200-900',
+                                            'TSH': '0.5-5',
+                                            'Creatinine': '0.6-1.2',
+                                            'Uric Acid': '3.5-7.2',
+                                            'SGPT': '0-40',
+                                            'ALT': '0-40',
+                                            'SGOT': '0-40',
+                                            'AST': '0-40'
+                                        };
+                                        
+                                        // Try to get reference range from data or use fallback
+                                        const firstDataPoint = dataPoints[0];
+                                        let referenceRange = firstDataPoint?.referenceRange;
+                                        
+                                        // If no reference range in data, check standard ranges
+                                        if (!referenceRange) {
+                                            referenceRange = standardRanges[selectedParam];
+                                        }
+                                        
+                                        if (referenceRange) {
+                                            const rangeMatch = referenceRange.match(/(\d+\.?\d*)\s*-\s*(\d+\.?\d*)/);
+                                            if (rangeMatch) {
+                                                const minRange = parseFloat(rangeMatch[1]);
+                                                const maxRange = parseFloat(rangeMatch[2]);
+                                                return (
+                                                    <ReferenceArea
+                                                        y1={minRange}
+                                                        y2={maxRange}
+                                                        fill="#10b981"
+                                                        fillOpacity={0.15}
+                                                        stroke="#10b981"
+                                                        strokeOpacity={0.3}
+                                                        strokeWidth={1}
+                                                        strokeDasharray="3 3"
+                                                        label={{
+                                                            value: 'Normal Range',
+                                                            position: 'insideTopRight',
+                                                            fill: '#059669',
+                                                            fontSize: 10,
+                                                            fontWeight: 700
+                                                        }}
+                                                    />
+                                                );
+                                            }
+                                        }
+                                        return null;
+                                    })()}
+                                    
                                     <XAxis 
                                         dataKey="date" 
                                         axisLine={false}
@@ -203,8 +266,11 @@ const Trends = () => {
                                         axisLine={false}
                                         tickLine={false}
                                         tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
+                                        domain={['auto', 'auto']}
                                     />
                                     <Tooltip content={<CustomTooltip />} />
+                                    
+                                    {/* Area Chart with Gradient */}
                                     <Area 
                                         type="monotone" 
                                         dataKey="value" 
@@ -213,10 +279,64 @@ const Trends = () => {
                                         fillOpacity={1} 
                                         fill="url(#colorValue)" 
                                         animationDuration={2000}
+                                        dot={{
+                                            fill: '#4F46E5',
+                                            stroke: '#fff',
+                                            strokeWidth: 3,
+                                            r: 6
+                                        }}
+                                        activeDot={{
+                                            fill: '#4F46E5',
+                                            stroke: '#fff',
+                                            strokeWidth: 4,
+                                            r: 8
+                                        }}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
+
+                        {/* Reference Range Indicator */}
+                        {(() => {
+                            // Standard fallback ranges (same as above)
+                            const standardRanges = {
+                                'Hemoglobin': '12-17',
+                                'Blood Sugar': '70-100',
+                                'Fasting Blood Sugar': '70-100',
+                                'Random Blood Sugar': '70-140',
+                                'HbA1c': '4-5.6',
+                                'Total Cholesterol': '125-200',
+                                'LDL Cholesterol': '0-100',
+                                'HDL Cholesterol': '40-60',
+                                'Triglycerides': '0-150',
+                                'Vitamin D': '30-100',
+                                'Vitamin B12': '200-900',
+                                'TSH': '0.5-5',
+                                'Creatinine': '0.6-1.2',
+                                'Uric Acid': '3.5-7.2',
+                                'SGPT': '0-40',
+                                'ALT': '0-40',
+                                'SGOT': '0-40',
+                                'AST': '0-40'
+                            };
+                            
+                            const firstDataPoint = dataPoints[0];
+                            let referenceRange = firstDataPoint?.referenceRange || standardRanges[selectedParam];
+                            
+                            if (referenceRange) {
+                                return (
+                                    <div className="mt-6 flex items-center justify-center gap-3 text-sm">
+                                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full">
+                                            <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+                                            <span className="text-emerald-700 font-bold">
+                                                Normal Range: {referenceRange} {currentTrend.unit}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })()}
                     </div>
 
                     {/* Meta Insights */}

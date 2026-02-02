@@ -1,0 +1,32 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#logoGradient)" opacity="0.1"/>
+  <rect x="2" y="2" width="44" height="44" rx="12" stroke="url(#logoGradient)" stroke-width="2" fill="none"/>
+  
+  <!-- Heart with pulse line -->
+  <path d="M24 38C24 38 10 28 10 18C10 14 12 10 16 10C19 10 22 12 24 14C26 12 29 10 32 10C36 10 38 14 38 18C38 28 24 38 24 38Z" 
+        fill="url(#logoGradient)" opacity="0.2"/>
+  
+  <!-- Pulse line -->
+  <path d="M12 24 L18 24 L20 18 L22 30 L24 20 L26 28 L28 24 L36 24" 
+        stroke="url(#logoGradient)" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- Heart outline -->
+  <path d="M24 38C24 38 10 28 10 18C10 14 12 10 16 10C19 10 22 12 24 14C26 12 29 10 32 10C36 10 38 14 38 18C38 28 24 38 24 38Z" 
+        stroke="url(#logoGradient)" 
+        stroke-width="2.5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+</svg>
