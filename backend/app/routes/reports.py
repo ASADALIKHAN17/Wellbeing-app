@@ -30,11 +30,31 @@ async def get_health_trends(
         data = report.get("extracted_data", {})
         for param in data:
             # Normalize: Remove parentheses, lowercase, strip, collapse spaces
-            # "Hemoglobin (Hb)" -> "Hemoglobin" -> "hemoglobin"
+            # Hemoglobin (Hb) -> Hemoglobin -> hemoglobin
             clean_param = re.sub(r'\(.*?\)', '', param)
             norm_key = " ".join(clean_param.strip().lower().split())
             
-            if norm_key not in param_name_map:
+            # Map common variations to standard display names if not already handled by Gemini
+            # This handles older/legacy reports
+            mapping = {
+                "hb": "Hemoglobin",
+                "haemoglobin": "Hemoglobin",
+                "hgb": "Hemoglobin",
+                "blood sugar fasting": "Fasting Blood Sugar",
+                "fasting glucose": "Fasting Blood Sugar",
+                "glucose fasting": "Fasting Blood Sugar",
+                "blood sugar random": "Random Blood Sugar",
+                "random glucose": "Random Blood Sugar",
+                "hdl": "HDL Cholesterol",
+                "ldl": "LDL Cholesterol",
+                "tgl": "Triglycerides",
+                "alt": "SGPT",
+                "ast": "SGOT",
+            }
+            
+            if norm_key in mapping:
+                param_name_map[norm_key] = mapping[norm_key]
+            elif norm_key not in param_name_map:
                 param_name_map[norm_key] = param.strip()
     
     for report in reports:
@@ -46,7 +66,7 @@ async def get_health_trends(
             clean_param = re.sub(r'\(.*?\)', '', param)
             norm_key = " ".join(clean_param.strip().lower().split())
             
-            # Use the canonical display name
+            # Use the canonical display name from map
             param_key = param_name_map.get(norm_key, param.strip())
             
             num_val = None
@@ -120,7 +140,7 @@ async def upload_report(
             extracted_data=gemini_result.get("extracted_data", {}),
             gemini_analysis=gemini_result.get("analysis"),
             pdf_path=file_path,
-            upload_date=datetime.utcnow()
+            upload_date=datetime.utcnow() + timedelta(hours=5, minutes=30) # IST conversion
         )
     except Exception as e:
         print(f"FAILED to create ReportInDB model: {e}")

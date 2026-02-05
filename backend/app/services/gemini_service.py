@@ -22,20 +22,35 @@ async def analyze_health_report(extracted_text: str = None, pdf_bytes: bytes = N
     base_prompt = """
     You are a professional health advisor. Analyze the following medical lab report.
     
-    TASKS:
-    1. EXTRACT DATA: Find all health parameters (like Hemoglobin, Sugar, Cholesterol, etc.). 
-       For each parameter, you MUST extract:
-       - The actual numerical value (as a floating point number).
-       - The unit of measurement.
-       - The reference range (MANDATORY - see instructions below).
+    2. PARAMETER NORMALIZATION (CRITICAL):
+       Medical reports use many different names for the same thing. You MUST map what you find to these EXACT "Standard Keys" if they match:
+       - "Hemoglobin": (Hb, Haemoglobin, Hgb)
+       - "RBC Count": (Red Blood Cell Count, RBCs)
+       - "WBC Count": (White Blood Cell Count, WBCs, Leucocytes)
+       - "Platelet Count": (Platelets, PLT)
+       - "Fasting Blood Sugar": (Fasting Glucose, Glucose Fasting, BFS)
+       - "Random Blood Sugar": (Random Glucose, RBS)
+       - "HbA1c": (Glycated Hemoglobin)
+       - "Total Cholesterol": (Cholesterol Total)
+       - "HDL Cholesterol": (HDL, Good Cholesterol)
+       - "LDL Cholesterol": (LDL, Bad Cholesterol)
+       - "Triglycerides": (TGL, TRIG)
+       - "Vitamin D": (Vit D, 25-OH Vitamin D)
+       - "Vitamin B12": (Vit B12, Cobalamin)
+       - "TSH": (Thyroid Stimulating Hormone)
+       - "Creatinine": (Serum Creatinine)
+       - "Uric Acid": (S. Uric Acid)
+       - "SGPT": (ALT, Alanine Aminotransferase)
+       - "SGOT": (AST, Aspartate Aminotransferase)
+       - "Bilirubin Total": (Total Bilirubin)
        
-    2. REFERENCE RANGE EXTRACTION (CRITICAL):
+    3. REFERENCE RANGE EXTRACTION (CRITICAL):
        For EVERY parameter you extract, you MUST provide a reference_range field.
        - FIRST: Look for the 'Reference Range', 'Normal Range', or 'Biological Reference Interval' in the report document itself.
        - IF NOT FOUND in document: Use standard Indian medical reference ranges:
          * Hemoglobin: "13-17" for men, "12-15" for women (use "12-17" if gender unknown)
-         * Blood Sugar (Fasting): "70-100"
-         * Blood Sugar (Random): "70-140"
+         * Fasting Blood Sugar: "70-100"
+         * Random Blood Sugar: "70-140"
          * HbA1c: "4-5.6"
          * Total Cholesterol: "125-200"
          * LDL Cholesterol: "0-100"
@@ -46,8 +61,8 @@ async def analyze_health_report(extracted_text: str = None, pdf_bytes: bytes = N
          * TSH: "0.5-5"
          * Creatinine: "0.6-1.2"
          * Uric Acid: "3.5-7.2"
-         * SGPT/ALT: "0-40"
-         * SGOT/AST: "0-40"
+         * SGPT: "0-40"
+         * SGOT: "0-40"
        - For any other parameter not listed above, use your medical knowledge to provide appropriate standard ranges.
        - IMPORTANT: The reference_range should be a string in format "min-max" (e.g., "13-17"), without units.
        
