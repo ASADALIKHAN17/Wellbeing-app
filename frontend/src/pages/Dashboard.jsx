@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -11,25 +11,28 @@ const Dashboard = () => {
     const [latestBmi, setLatestBmi] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [reportsRes, remindersRes, bmiRes] = await Promise.all([
-                    api.get('/reports/'),
-                    api.get('/users/reminders/status'),
-                    api.get('/bmi/latest')
-                ]);
-                setReports(reportsRes.data);
-                setReminderStatus(remindersRes.data);
-                setLatestBmi(bmiRes.data);
-            } catch (error) {
-                console.error("Error fetching dashboard data", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
+    const fetchData = useCallback(async (isManualSync = false) => {
+        if (isManualSync) setLoading(true);
+        try {
+            const [reportsRes, remindersRes, bmiRes] = await Promise.all([
+                api.get(`/reports/?_t=${Date.now()}`),
+                api.get(`/users/reminders/status?_t=${Date.now()}`),
+                api.get(`/bmi/latest?_t=${Date.now()}`)
+            ]);
+            setReports(reportsRes.data);
+            setReminderStatus(remindersRes.data);
+            setLatestBmi(bmiRes.data);
+        } catch (error) {
+            console.error("Error fetching dashboard data", error);
+        } finally {
+            if (isManualSync) setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        fetchData().finally(() => setLoading(false));
+    }, [fetchData]);
 
     if (loading) {
         return (
@@ -54,7 +57,20 @@ const Dashboard = () => {
                             Verified account
                         </div>
                         <h1 className="text-4xl md:text-5xl font-black mb-3">Hello, {user?.full_name.split(' ')[0]}</h1>
-                        <p className="text-slate-400 font-medium text-lg">Your health intelligence dashboard is up to date.</p>
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <p className="text-slate-400 font-medium text-lg">Your health intelligence dashboard is up to date.</p>
+                            <button 
+                                onClick={() => fetchData(true)}
+                                disabled={loading}
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all border
+                                    ${loading 
+                                        ? 'bg-white/5 border-white/10 text-slate-500 cursor-not-allowed' 
+                                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40'}`}
+                            >
+                                <Loader2 className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+                                {loading ? 'Syncing...' : 'Sync Now'}
+                            </button>
+                        </div>
                     </div>
 
                     {reminderStatus?.next_checkup_date && (

@@ -14,10 +14,9 @@ services:
       - mongodb
     env_file:
       - ./backend/.env
-    environment:
-      # Override MONGODB_URI to point to the docker service name usually, 
-      # but if the user uses localhost in their .env, we can override it here.
-      - MONGODB_URI=mongodb://mongodb:27017
+    # environment:
+    #   # Using values from .env file instead
+    #   - MONGODB_URI=mongodb://mongodb:27017
     volumes:
       # Mount source code for easier debugging if needed, 
       # though usually not done in prod. For "dockerize my project" usually implies a runnable setup.

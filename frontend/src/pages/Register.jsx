@@ -18,7 +18,8 @@ const Register = () => {
             navigate('/dashboard');
         } catch (err) {
             console.error(err);
-            setError('Registration failed. Email might be taken.');
+            const serverMessage = err.response?.data?.detail;
+            setError(serverMessage || 'Registration failed. Please check your connection or try a different email.');
         }
     };
 

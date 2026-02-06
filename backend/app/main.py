@@ -9,11 +9,7 @@ settings = get_settings()
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS Configuration
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:5173", # Vite default
-]
+origins = ["*"]  # Allow all origins for production deployment
 
 app.add_middleware(
     CORSMiddleware,

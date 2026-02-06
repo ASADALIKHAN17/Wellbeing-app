@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceArea 
@@ -12,24 +12,37 @@ const Trends = () => {
     const [loading, setLoading] = useState(true);
     const [selectedParam, setSelectedParam] = useState(null);
 
-    useEffect(() => {
-        const fetchTrends = async () => {
-            try {
-                const response = await api.get('/reports/trends');
-                setTrends(response.data);
-                // Select first parameter by default
-                const params = Object.keys(response.data);
-                if (params.length > 0) {
+    const fetchTrends = useCallback(async (isManualRefresh = false) => {
+        if (isManualRefresh) setLoading(true);
+        try {
+            // Add cache-busting timestamp to ensure fresh data from server
+            const response = await api.get(`/reports/trends?_t=${Date.now()}`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                }
+            });
+            setTrends(response.data);
+            
+            // Auto-select first parameter if none selected, or if current selection disappeared
+            const params = Object.keys(response.data);
+            if (params.length > 0) {
+                if (!selectedParam || !response.data[selectedParam]) {
                     setSelectedParam(params[0]);
                 }
-            } catch (error) {
-                console.error("Error fetching trends:", error);
-            } finally {
-                setLoading(false);
             }
-        };
-        fetchTrends();
-    }, []);
+        } catch (error) {
+            console.error("Error fetching trends:", error);
+        } finally {
+            if (isManualRefresh) setLoading(false);
+        }
+    }, [selectedParam]);
+
+    useEffect(() => {
+        setLoading(true);
+        fetchTrends().finally(() => setLoading(false));
+    }, [fetchTrends]);
 
     if (loading) {
         return (
@@ -98,15 +111,29 @@ const Trends = () => {
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">Health Analytics</h1>
                     <p className="text-slate-500 font-medium">Chronological synthesis of clinical biomarkers.</p>
                 </div>
-                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-50">
-                    <Filter className="h-4 w-4 text-slate-400 ml-2" />
-                    <select 
-                        className="bg-transparent font-black px-4 py-2 border-none focus:ring-0 text-indigo-600 text-sm outline-none cursor-pointer"
-                        value={selectedParam}
-                        onChange={(e) => setSelectedParam(e.target.value)}
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => fetchTrends(true)}
+                        disabled={loading}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border
+                            ${loading 
+                                ? 'bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed' 
+                                : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600 shadow-sm hover:shadow-md'}`}
                     >
-                        {params.map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
+                        <Loader2 className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                        {loading ? 'Synchronizing...' : 'Sync Data'}
+                    </button>
+                    
+                    <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-50">
+                        <Filter className="h-4 w-4 text-slate-400 ml-2" />
+                        <select 
+                            className="bg-transparent font-black px-4 py-2 border-none focus:ring-0 text-indigo-600 text-sm outline-none cursor-pointer"
+                            value={selectedParam}
+                            onChange={(e) => setSelectedParam(e.target.value)}
+                        >
+                            {params.map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                    </div>
                 </div>
             </div>
 
